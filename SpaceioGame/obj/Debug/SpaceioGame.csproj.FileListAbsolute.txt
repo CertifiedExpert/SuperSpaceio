@@ -1,0 +1,10 @@
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\obj\Debug\SpaceioGame.csproj.AssemblyReference.cache
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\obj\Debug\SpaceioGame.csproj.CoreCompileInputs.cache
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\bin\Debug\SpaceioGame.exe.config
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\bin\Debug\SpaceioGame.exe
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\bin\Debug\SpaceioGame.pdb
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\bin\Debug\ConsoleEngine.dll
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\bin\Debug\ConsoleEngine.pdb
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\obj\Debug\SpaceioG.1AA9E43F.Up2Date
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\obj\Debug\SpaceioGame.exe
+C:\Users\Krzysztof\Documents\DEV\test\SpaceioGame\obj\Debug\SpaceioGame.pdb

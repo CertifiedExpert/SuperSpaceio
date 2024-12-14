@@ -1,0 +1,6 @@
+C:\Users\Krzysztof\Documents\DEV\test\ConsoleEngine\obj\Debug\ConsoleEngine.csproj.AssemblyReference.cache
+C:\Users\Krzysztof\Documents\DEV\test\ConsoleEngine\obj\Debug\ConsoleEngine.csproj.CoreCompileInputs.cache
+C:\Users\Krzysztof\Documents\DEV\test\ConsoleEngine\bin\Debug\ConsoleEngine.dll
+C:\Users\Krzysztof\Documents\DEV\test\ConsoleEngine\bin\Debug\ConsoleEngine.pdb
+C:\Users\Krzysztof\Documents\DEV\test\ConsoleEngine\obj\Debug\ConsoleEngine.dll
+C:\Users\Krzysztof\Documents\DEV\test\ConsoleEngine\obj\Debug\ConsoleEngine.pdb
