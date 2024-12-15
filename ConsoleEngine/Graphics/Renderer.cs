@@ -33,7 +33,7 @@ namespace ConsoleEngine
 
             DrawGameObjectsToFrameBuffer();
             DrawDebugLines();
-            DrawUI();
+            //DrawUI();
 
             Draw();
         }

@@ -6,6 +6,7 @@ namespace Spaceio
     [DataContract(IsReference = true)]
     sealed class Game : Engine
     {
+        int i = 0;
         // Settings
         public int millisecondsPerPlayerMove = 50;
         public const int chunkLoadRadius = 3;
@@ -24,7 +25,15 @@ namespace Spaceio
 
             UpdateCamera();
 
-            CloseEngine();
+            //ChunkManager.GenerateEmptyChunk(0, 0);
+            //ChunkManager.GenerateEmptyChunk(1, 0);
+            //ChunkManager.GenerateEmptyChunk(-1, -1);
+            ChunkManager.ScheduleLoadChunk(0, 0);
+            ChunkManager.ScheduleLoadChunk(-1, -1);
+            ChunkManager.ScheduleLoadChunk(1, 0);
+
+            if (i == 3) CloseEngine();
+            else i++;
         }
 
         private void UpdateCamera()

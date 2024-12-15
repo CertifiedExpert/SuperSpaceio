@@ -10,8 +10,8 @@ namespace ConsoleEngine.Save.SaveData
     {
         public int ChunkX { get; set; }
         public int ChunkY { get; set; }
-        public int Offset {  get; set; }
-        public int Length { get; set; }
+        public int Offset {  get; set; } 
+        public int Length { get; set; } // In bytes
 
         public HeaderEntry(int chunkX, int chunkY, int offset, int length)
         {

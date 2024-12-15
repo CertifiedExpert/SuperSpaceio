@@ -78,9 +78,12 @@ namespace ConsoleEngine
             Settings = Serializer.FromFile<Settings>($"{pathGameState}\\Settings.txt");
             ChunkManager = new ChunkManager(this, Serializer.FromFile<ChunkManagerSaveData>($"{pathGameState}\\ChunkManager.txt"));
             GameObjectManager = new GameObjectManager(this, Serializer.FromFile<GameObjectManagerSaveData>($"{pathGameState}\\GameObjectManager.txt"));
-            Camera = new Camera(Serializer.FromFile<CameraSaveData>("${pathGameState}\\Camera.txt"));
+            Camera = new Camera(Serializer.FromFile<CameraSaveData>($"{pathGameState}\\Camera.txt"));
             ResourceManager = new ResourceManager(this, Serializer.FromFile<ResourceManagerSaveData>($"{pathGameState}\\ResourceManager.txt"));
             SaveFileManager = new SaveFileManager(this);
+
+            Renderer = new Renderer(this);
+            InputManager = new InputManager();
 
             SetUpEngine();
 
@@ -118,6 +121,9 @@ namespace ConsoleEngine
             SaveFileManager = saveFileManager;
 
             SetUpEngine();
+
+            File.Create($"{pathWorldFolder}\\ChunkHeader.txt");
+            File.Create($"{pathWorldFolder}\\ChunkData.txt");
         }
 
         public void Save()
@@ -164,7 +170,7 @@ namespace ConsoleEngine
             // Registers input.
             InputManager.UpdateInput();
 
-            UIManager.Update();
+            //UIManager.Update();
 
             GameObjectManager.Update();
 

@@ -4,6 +4,8 @@ using System.Text;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Diagnostics;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace ConsoleEngine
 {
@@ -24,7 +26,7 @@ namespace ConsoleEngine
         }
         public static T FromXmlBytes<T>(byte[] bytes)
         {
-            using (var stream = new MemoryStream())
+            using (var stream = new MemoryStream(bytes))
             {
                 var serializer = new DataContractSerializer(typeof(T), knownTypes);
                 return (T)serializer.ReadObject(stream);

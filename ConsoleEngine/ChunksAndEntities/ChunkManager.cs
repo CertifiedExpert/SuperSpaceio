@@ -21,6 +21,7 @@ namespace ConsoleEngine
         private List<Vec2i> chunksToBeRemovedFromLoadedChunks = new List<Vec2i>();
         private List<Vec2i> chunksToBeUnloaded = new List<Vec2i>(); // List of chunks which have been scheduled to be unloaded.
         private List<Vec2i> chunksToBeLoaded = new List<Vec2i>();
+        private List<Chunk> chunksToBeGenerated = new List<Chunk>();
 
         public delegate void ChunkLoadedEventHandler(Vec2i chunkIndex);
         public event ChunkLoadedEventHandler ChunkLoaded; // Subscribe to this if you want to add changes to chunk after it has been loaded (like ex. growing plants by the amount of time which has passed since Chunks.LastUnloaded.)
@@ -45,6 +46,13 @@ namespace ConsoleEngine
         }
         internal void Update()
         {
+            foreach (var c in chunksToBeGenerated)
+            {
+                _chunks.Add(c.Index, c);
+                _loadedChunks.Add(c);
+            }
+            chunksToBeGenerated.Clear();
+
             foreach (var v in chunksToBeUnloaded) UnloadChunk(v);
             chunksToBeUnloaded.Clear();
 
@@ -64,7 +72,7 @@ namespace ConsoleEngine
             if (!WasChunkCreated(x, y))
             {
                 var c = new Chunk(new Vec2i(x, y), Engine);
-                _chunks.Add(new Vec2i(x, y), c);
+                chunksToBeGenerated.Add(c);
             }
             else
             {

@@ -37,19 +37,20 @@ namespace ConsoleEngine
         }
         internal void SaveChunkBytes(byte[] bytes, Vec2i index)
         {
-            var numberOfBytes = bytes.Length;
-            int occupiedSectors = (numberOfBytes + bytesForSegment - 1) / bytesForSegment; // divides numberOfBytes by bytesForSegment and rounds up
+            var newNumberOfBytes = bytes.Length;
+            int newOccupiedSectors = (newNumberOfBytes + bytesForSegment - 1) / bytesForSegment; // divides numberOfBytes by bytesForSegment and rounds up
 
             if (chunkInHeaderIndexes.ContainsKey(index)) // if chunk exists in save file
             {
                 var currentHeaderIndex = chunkInHeaderIndexes[index];
+                var oldOccupiedSectors = (headerEntries[currentHeaderIndex].Length + bytesForSegment - 1) / bytesForSegment;
 
-                if (occupiedSectors < headerEntries[currentHeaderIndex].Length) // if new chunks smaller in size
+                if (newOccupiedSectors < oldOccupiedSectors) // if new chunks smaller in size
                 {
                     var oldLength = headerEntries[currentHeaderIndex].Length;
                     headerEntries[currentHeaderIndex] =
-                        new HeaderEntry(index.X, index.Y, headerEntries[currentHeaderIndex].Offset, occupiedSectors);
-                    for (var i = headerEntries[currentHeaderIndex].Offset + occupiedSectors;
+                        new HeaderEntry(index.X, index.Y, headerEntries[currentHeaderIndex].Offset, newNumberOfBytes);
+                    for (var i = headerEntries[currentHeaderIndex].Offset + newOccupiedSectors;
                         i < headerEntries[currentHeaderIndex].Offset + oldLength; i++)
                     {
                         segmentOccupancy[i] = false;
@@ -57,15 +58,15 @@ namespace ConsoleEngine
 
                     WriteChunkDataToFile(bytes, headerEntries[currentHeaderIndex].Offset);
                 }
-                else if (occupiedSectors > headerEntries[currentHeaderIndex].Length) // if new chunk larger in size
+                else if (newOccupiedSectors > oldOccupiedSectors) // if new chunk larger in size
                 {
                     // Checks if segmentOccupancy can accommodate new date. Extends it if can't
-                    ExtendSegmentOccupancyIfNeeded(headerEntries[currentHeaderIndex].Offset + occupiedSectors);    
+                    ExtendSegmentOccupancyIfNeeded(headerEntries[currentHeaderIndex].Offset + newOccupiedSectors);    
                 
                     // Tries to allocate same origin. If impossible allocates new origin
                     var newOffset = headerEntries[currentHeaderIndex].Offset; 
-                    for (var i = headerEntries[currentHeaderIndex].Offset + headerEntries[currentHeaderIndex].Length;
-                        i < headerEntries[currentHeaderIndex].Offset + occupiedSectors; i++)
+                    for (var i = headerEntries[currentHeaderIndex].Offset + oldOccupiedSectors;
+                        i < headerEntries[currentHeaderIndex].Offset + newOccupiedSectors; i++)
                     {
                         if (segmentOccupancy[i] == true)
                         {
@@ -77,26 +78,26 @@ namespace ConsoleEngine
                     if (newOffset != headerEntries[currentHeaderIndex].Offset) // if different origin has been allocated
                     {
                         for (var i = headerEntries[currentHeaderIndex].Offset;
-                                        i < headerEntries[currentHeaderIndex].Offset + headerEntries[currentHeaderIndex].Length; i++)
+                                        i < headerEntries[currentHeaderIndex].Offset + oldOccupiedSectors; i++)
                         {
                             segmentOccupancy[i] = false;
                         }
-                        for (var i = newOffset; i < newOffset + occupiedSectors; i++)
+                        for (var i = newOffset; i < newOffset + newOccupiedSectors; i++)
                         {
                             segmentOccupancy[i] = true;
                         }
 
-                        headerEntries[currentHeaderIndex] = new HeaderEntry(index.X, index.Y, newOffset, occupiedSectors);
+                        headerEntries[currentHeaderIndex] = new HeaderEntry(index.X, index.Y, newOffset, newNumberOfBytes);
                         WriteChunkDataToFile(bytes, newOffset);
                     }
                     else // if same origin has been allocated
                     {
-                        for (var i = headerEntries[currentHeaderIndex].Offset + headerEntries[currentHeaderIndex].Length; 
-                            i < headerEntries[currentHeaderIndex].Offset + occupiedSectors; i++)
+                        for (var i = headerEntries[currentHeaderIndex].Offset + oldOccupiedSectors; 
+                            i < headerEntries[currentHeaderIndex].Offset + newOccupiedSectors; i++)
                         {
                             segmentOccupancy[i] = true;
                         }
-                        headerEntries[currentHeaderIndex] = new HeaderEntry(index.X, index.Y, newOffset, occupiedSectors);
+                        headerEntries[currentHeaderIndex] = new HeaderEntry(index.X, index.Y, newOffset, newNumberOfBytes);
                         WriteChunkDataToFile(bytes, newOffset);
                     }
                 }
@@ -107,14 +108,14 @@ namespace ConsoleEngine
             }
             else // if chunks does not exist in save file
             {
-                var offset = FindFreeSpace(bytes);
-                AddHeaderEntry(index, offset, occupiedSectors);
+                var segmentOffset = FindFreeSpace(bytes);
+                AddHeaderEntry(index, segmentOffset, newNumberOfBytes);
                 var headerIndex = chunkInHeaderIndexes[index];
-                for (var i = offset; i < offset + occupiedSectors; ++i)
+                for (var i = segmentOffset; i < segmentOffset + newOccupiedSectors; ++i)
                 {
                     segmentOccupancy[i] = true;
                 }
-                WriteChunkDataToFile(bytes, offset);
+                WriteChunkDataToFile(bytes, segmentOffset);
             }
         }
         internal byte[] LoadChunkBytes(Vec2i index)
@@ -133,6 +134,7 @@ namespace ConsoleEngine
         private int FindFreeSpace(byte[] bytes)
         {
             var offset = 0;
+            var bytesSegments = (bytes.Length + bytesForSegment - 1) / bytesForSegment;
 
             var successfullyAllocated = false;
             var freeSegmentsInARow = 0;
@@ -145,10 +147,10 @@ namespace ConsoleEngine
                 else
                 {
                     freeSegmentsInARow = 0;
-                    offset = i;
+                    offset = i + 1;
                 }
 
-                if (freeSegmentsInARow == bytes.Length)
+                if (freeSegmentsInARow == bytesSegments)
                 {
                     successfullyAllocated = true;
                     break;
@@ -171,10 +173,10 @@ namespace ConsoleEngine
                     else
                     {
                         freeSegmentsInARow = 0;
-                        offset = i;
+                        offset = i + 1;
                     }
 
-                    if (freeSegmentsInARow == bytes.Length)
+                    if (freeSegmentsInARow == bytesSegments)
                     {
                         break;
                     }
@@ -195,12 +197,13 @@ namespace ConsoleEngine
                 }
             }
         }
-        private void WriteChunkDataToFile(byte[] bytes, int offset)
+        private void WriteChunkDataToFile(byte[] bytes, int segmentOffset)
         {
             using (FileStream fs = new FileStream(ChunksDataPath, FileMode.Open, FileAccess.Write))
             {
-                fs.Seek((long)offset * bytesForSegment, SeekOrigin.Begin);
+                fs.Seek((long)segmentOffset * bytesForSegment, SeekOrigin.Begin);
                 fs.Write(bytes, 0, bytes.Length);
+                // TODO: Write whitespaces to the rest of free space untill next segment. NECESSARY to prevent this from being read in by the serializer
             }
         }
 
@@ -240,7 +243,7 @@ namespace ConsoleEngine
                 headerEntries.Add(he);
                 chunkInHeaderIndexes.Add(new Vec2i(he.ChunkX, he.ChunkY), i);
 
-                for (var j = 0; j < he.Length; j++)
+                for (var j = 0; j < (he.Length + bytesForSegment - 1) / bytesForSegment; j++)
                 {
                     segmentOccupancy[he.Offset + j] = true;
                 }
