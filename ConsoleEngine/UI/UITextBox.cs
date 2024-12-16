@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
+using System.Windows.Media.Imaging;
 
 namespace ConsoleEngine
 {
@@ -42,7 +43,7 @@ namespace ConsoleEngine
                 limit = Math.Min(limit, Text.Length);
                 for (var i = 0; i < limit; i++)
                 {
-                    bitmap.Data[TextPosition.X + 2 * i, TextPosition.Y] = Text[i];
+                    bitmap.SetAt(TextPosition.X + 2 * i, TextPosition.Y, Text[i]);
                 }
             }
             else
@@ -51,7 +52,7 @@ namespace ConsoleEngine
                 limit = Math.Min(limit, Text.Length);
                 for (var i = 0; i < limit; i++)
                 {
-                    bitmap.Data[TextPosition.X + i, TextPosition.Y] = Text[i];
+                    bitmap.SetAt(TextPosition.X + i, TextPosition.Y, Text[i]);
                 }
             }
         }

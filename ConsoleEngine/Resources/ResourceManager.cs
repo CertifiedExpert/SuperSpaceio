@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace ConsoleEngine
 {
@@ -10,7 +12,7 @@ namespace ConsoleEngine
         private Engine Engine { get; set; }
         private ResIDManager ResIDManager { get; set; }
 
-        public string resFolderPath; 
+        public string resFolderPath;
 
         public ResourceManager(Engine engine, ResIDManager resIDManager)
         {
@@ -58,7 +60,7 @@ namespace ConsoleEngine
             catch { }
         }
 
-        // Returns ResIDManager.InvalidResID if no resourche with this name exists
+        // Returns ResIDManager.InvalidResID if no resource with this name exists
         public ResID GetResID(string name)
         {
             if (namesAndResIDs.ContainsKey(name)) return namesAndResIDs[name];
@@ -80,7 +82,53 @@ namespace ConsoleEngine
 
         private Tuple<ResID, Bitmap> LoadBitmapFromPath(string p)
         {
-            throw new NotImplementedException(); //TODO: write this
+            var data = File.ReadAllBytes(p);
+
+            var headerSize = sizeof(uint) * 2 + sizeof(int) * 2;
+            var header = data.Take(headerSize).ToArray();
+            var hTpl = DecodeBitmapHeaderBytes(header);
+            var chars = Encoding.UTF8.GetChars(data, headerSize, data.Length - headerSize);
+            return new Tuple<ResID, Bitmap>(new ResID(hTpl.Item1, hTpl.Item2), new Bitmap(chars, new Vec2i(hTpl.Item3, hTpl.Item4))); 
+        }
+
+        private void SaveBitmapToResourceFolder(string name, ResID resID) 
+        {
+            //TODO: add checks if already exists (then don't add), don't allow overwrite of existing resources
+            namesAndResIDs.Add(name, resID);
+            var size = bitmaps[resID].Size;
+            var headerBytes = EncodeBitmapHeaderBytes(resID, bitmaps[resID].Size);
+            var bitmapDataBytes = Serializer.ToXmlBytes(bitmaps[resID].Data);
+            var data = headerBytes.Concat(bitmapDataBytes).ToArray();
+
+            using (var fs = new FileStream($"{resFolderPath}\\{name}\\.txt", FileMode.CreateNew, FileAccess.Write))
+            {
+                fs.Write(data, 0, data.Length);
+            }
+        }
+
+        // UID.BaseID, UID.Generation, Size.X, Size.Y
+        private Tuple<uint, uint, int, int> DecodeBitmapHeaderBytes(byte[] bytes)
+        {
+            var baseID = BitConverter.ToUInt32(bytes, 0);
+            var generation = BitConverter.ToUInt32(bytes, sizeof(uint));
+            var x = BitConverter.ToInt32(bytes, sizeof(uint) * 2);
+            var y = BitConverter.ToInt32(bytes, sizeof(uint) * 2 + sizeof(int));
+            return new Tuple<uint, uint, int, int>(baseID, generation, x, y);
+        }
+        private byte[] EncodeBitmapHeaderBytes(ResID resID, Vec2i size)
+        {
+            var bytes = new byte[sizeof(uint) * 2 + sizeof(int) * 2];
+            var baseIDb = BitConverter.GetBytes(resID.BaseID);
+            var generationb = BitConverter.GetBytes(resID.Generation);
+            var x = BitConverter.GetBytes(size.X);
+            var y = BitConverter.GetBytes(size.Y);
+
+            for (var i = 0; i < baseIDb.Length; i++) bytes[i] = baseIDb[i];
+            for (var i = baseIDb.Length; i < baseIDb.Length + generationb.Length; i++) bytes[i] = generationb[i];
+            for (var i = baseIDb.Length + generationb.Length; i < baseIDb.Length + generationb.Length + x.Length; i++) bytes[i] = x[i];
+            for (var i = baseIDb.Length + generationb.Length + x.Length; i < bytes.Length; i++) bytes[i] = y[i];
+
+            return bytes;   
         }
 
         internal ResourceManagerSaveData GetSaveData()
@@ -89,8 +137,20 @@ namespace ConsoleEngine
             sd.ResIDManager = ResIDManager.GetSaveData();
             return sd;
         }
-        
 
+        public static char[,] test2D = new char[9, 9]
+        {
+                {'L',' ', '-', '-', 'T','-', '-', ' ', 'R'},
+                {' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' '},
+                {'I',' ', ' ', ' ', ' ',' ', ' ', ' ', 'I'},
+                {'I',' ', ' ', ' ', ' ',' ', ' ', ' ', 'I'},
+                {'I',' ', ' ', ' ', 'M',' ', ' ', ' ', 'I'},
+                {'I',' ', ' ', ' ', ' ',' ', ' ', ' ', 'I'},
+                {'I',' ', ' ', ' ', ' ',' ', ' ', ' ', 'I'},
+                {' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' '},
+                {'L',' ', '-', '-', 'B','-', '-', ' ', 'R'},
+        };
+        public static char[] test = Util.Flatten2dArray(test2D);
 
         public static Bitmap fighter1Up;
         public static Bitmap fighter1Down;
@@ -108,6 +168,7 @@ namespace ConsoleEngine
         public static Bitmap asteroid;
         public static void Initialize()
         {
+            /*
             #region FighterSprites
 
             var fighter1UpBitmap = new char[9, 9]
@@ -269,6 +330,7 @@ namespace ConsoleEngine
             };
 
             asteroid = new Bitmap(PrepareData(asteroidBitmap));
+            */
         }
 
 

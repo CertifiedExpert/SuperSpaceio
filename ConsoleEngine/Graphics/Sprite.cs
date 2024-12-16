@@ -47,6 +47,6 @@ namespace ConsoleEngine
             return sd;
         }
 
-        public static char DefaultShader(int x, int y, Bitmap bitmap, object[] args) => bitmap.Data[x, y];
+        public static char DefaultShader(int x, int y, Bitmap bitmap, object[] args) => bitmap.GetAt(x, y);
     }
 }

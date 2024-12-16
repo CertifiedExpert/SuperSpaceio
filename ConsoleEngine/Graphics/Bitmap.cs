@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Data.SqlTypes;
+using System.Runtime.Remoting.Messaging;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace ConsoleEngine
@@ -8,24 +9,34 @@ namespace ConsoleEngine
     public class Bitmap
     {
         public ReadOnlyVec2i Size { get; private set; }
-        public char[,] Data { get; set; } // TODO: consider changing this to a 1-dimensional array. Then you can make it read only.
-        public Bitmap(char[,] data)
+        //public char[,] Data { get; set; } // TODO: consider changing this to a 1-dimensional array. Then you can make it read only.
+        public char[] Data { get; set; }
+        //public Bitmap(char[,] data)
+        //{
+        //    Size = new ReadOnlyVec2i(data.GetLength(0), data.GetLength(1));
+        //    Data = data;
+        //}
+
+        public Bitmap(char[] data, Vec2i size)
         {
-            Size = new ReadOnlyVec2i(data.GetLength(0), data.GetLength(1));
+            Size = new ReadOnlyVec2i(size);
             Data = data;
         }
 
+        public char GetAt(int x, int y) => Data[y * Size.X + x];
+        public void SetAt(int x, int y, char value) => Data[y * Size.X + x] = value;
+
         public static Bitmap CreateStaticFillBitmap(Vec2i size, char fillChar)
         {
-            var bitmap = new Bitmap(new char[size.X, size.Y]);
+            var bitmap = new Bitmap(new char[size.X * size.Y], size);
             for (var i = 0; i < size.X; i++)
             {
                 for (var j = 0; j < size.Y; j++)
                 {
-                    bitmap.Data[i, j] = fillChar;
+                    bitmap.SetAt(j, i, fillChar);
                 }
             }
-
+            
             return bitmap;
         }
 
@@ -69,7 +80,7 @@ namespace ConsoleEngine
                     currentMove.Y -= 1;
                 }
 
-                Data[lastMove.X, lastMove.Y] = fillChar;
+                SetAt(lastMove.X, lastMove.Y, fillChar);
 
                 lastMove = currentMove;
             }
@@ -89,7 +100,7 @@ namespace ConsoleEngine
             {
                 for (var y = bottomLeftCorner.Y; y < endY; y++)
                 {
-                    Data[x, y] = fillChar;
+                    SetAt(x, y, fillChar);
                 }
             }
         }
@@ -104,7 +115,7 @@ namespace ConsoleEngine
             {
                 for (var y = position.Y; y < endY; y++)
                 {
-                    Data[x, y] = bitmap.Data[x - position.X, y - position.Y];
+                    SetAt(x, y, bitmap.GetAt(x - position.X, y - position.Y));
                 }
             }
         }
@@ -123,7 +134,7 @@ namespace ConsoleEngine
             {
                 for (var y = position.Y; y < endY; y++)
                 {
-                    Data[x, y] = bitmap.Data[x - position.X, y - position.Y];
+                    SetAt(x, y, bitmap.GetAt(x - position.X, y - position.Y));
                 }
             }
         }
@@ -141,7 +152,7 @@ namespace ConsoleEngine
 
                 for (var i = 0; i < limit; i++)
                 {
-                    Data[position.X + i * (spacingCharacters.Length + 1), position.Y] = text[i];
+                    SetAt(position.X + i * (spacingCharacters.Length + 1), position.Y, text[i]);
                 }
             }
             else
@@ -149,7 +160,7 @@ namespace ConsoleEngine
                 var limit = Math.Min(text.Length, Size.X - position.X);
                 for (var i = 0; i < limit; i++)
                 {
-                    Data[position.X + i, position.Y] = text[i];
+                    SetAt(position.X + i, position.Y, text[i]);
                 }
             }
         }

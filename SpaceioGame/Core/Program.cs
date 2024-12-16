@@ -8,6 +8,8 @@ namespace SpaceioGame
         [STAThread]
         static void Main(string[] args)
         {
+
+
             var game = new Game();
 
             var settings = new Settings(10, ' ', "  " , 1000, 196, 99, 1000);
@@ -21,8 +23,8 @@ namespace SpaceioGame
             var renderer = new Renderer(game);
             var inputManager = new InputManager();
 
-            //game.NewSave("test", settings, chunkManager, gameObjectManager, camera, resourceManager, saveFileManager, renderer, inputManager);
-            game.LoadFromSave("test");
+            game.NewSave("test", settings, chunkManager, gameObjectManager, camera, resourceManager, saveFileManager, renderer, inputManager);
+            //game.LoadFromSave("test");
 
             game.Init();
 

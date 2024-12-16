@@ -12,20 +12,24 @@ namespace SpaceioGame
 
         public int millisecondsSinceLastPlayerMove = 0;
         public bool playerMovedInThisFrame = false;
+
+        public UID shipUID;
         protected override void OnLoad()
         {
             Serializer.knownTypes.Add(typeof(BaseObjectSaveData));
             Serializer.knownTypes.Add(typeof(ShipSaveData));
 
-            //ChunkManager.GenerateEmptyChunk(0, 0);
-            //ChunkManager.GenerateEmptyChunk(1, 1);
-            //ChunkManager.GenerateEmptyChunk(-1, -1);
-            //var s = new Ship(new Vec2i(-1100, -1100), 10, this);
-            //AddBaseObject(s);
+            ChunkManager.GenerateEmptyChunk(0, 0);
 
-            ChunkManager.ScheduleLoadChunk(new Vec2i(0, 0));
-            ChunkManager.ScheduleLoadChunk(new Vec2i(1, 1));
-            ChunkManager.ScheduleLoadChunk(new Vec2i(-1, -1));
+            var bitmap = new Bitmap(ResourceManager.test, new Vec2i(9, 9));
+            var testBitmapID = ResourceManager.AddBitmap(bitmap);
+
+            var s = new Ship(new Vec2i(0, 0), 10, this);
+            var sprite = new Sprite(testBitmapID);
+            s.Sprites.Add(sprite);
+            shipUID = AddBaseObject(s);
+
+            //ChunkManager.ScheduleLoadChunk(new Vec2i(0, 0));
         }
 
         protected override void Update()
@@ -34,11 +38,11 @@ namespace SpaceioGame
 
             UpdateCamera();
 
-            var sUID = new UID(0, 0);
-            var s = (Ship)Find(sUID);
+            var s = (Ship)Find(shipUID);
+            s.MoveGameObject(1, 0);
 
-            if (i == 3) CloseEngine();
-            else i++;
+            //if (i == 3) CloseEngine();
+            //else i++;
         }
 
         public override void Init()

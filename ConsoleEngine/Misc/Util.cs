@@ -9,6 +9,20 @@ namespace ConsoleEngine
         // A global Random.
         public static Random random = new Random();
 
+        public static T[] Flatten2dArray<T>(T[,] array2D)
+        {
+            var result = new T[array2D.GetLength(0) * array2D.GetLength(1)];
+            for (var y = 0;  y < array2D.GetLength(1); y++)
+            {
+                for (var x = 0; x < array2D.GetLength(0); x++)
+                {
+                    result[y * array2D.GetLength(1) + x] = array2D[x, y];
+                }
+            }
+
+            return result;
+        }
+
         // Converts a 2d-array of T instances into a corresponding jagged array of T instances.
         public static T[][] Jaggedize2dArray<T>(T[,] instance)
         {

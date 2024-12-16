@@ -102,7 +102,7 @@ namespace ConsoleEngine
         
         public Sprite GetParentPanelSprite()
         {
-            var bitmap = new Bitmap(new char[Size.X, Size.Y]);
+            var bitmap = new Bitmap(new char[Size.X * Size.Y], Size);
 
             // Creates a non-transparent background.
             bitmap.FillWith(Background);
