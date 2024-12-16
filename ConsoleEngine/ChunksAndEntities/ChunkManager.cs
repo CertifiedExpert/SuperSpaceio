@@ -17,8 +17,6 @@ namespace ConsoleEngine
         private List<Chunk> _loadedChunks = new List<Chunk>();
         public ReadOnlyCollection<Chunk> loadedChunks { get; private set; } // A list of all chunks which are loaded. Can be used instead of chunk dictionary during interaction for the convenience of not checking if the chunk is loaded.
         
-        private List<Vec2i> chunksToBeAddedToLoadedChunks = new List<Vec2i>();
-        private List<Vec2i> chunksToBeRemovedFromLoadedChunks = new List<Vec2i>();
         private List<Vec2i> chunksToBeUnloaded = new List<Vec2i>(); // List of chunks which have been scheduled to be unloaded.
         private List<Vec2i> chunksToBeLoaded = new List<Vec2i>();
         private List<Chunk> chunksToBeGenerated = new List<Chunk>();
@@ -63,11 +61,6 @@ namespace ConsoleEngine
             foreach (var v in chunksToBeLoaded) LoadChunk(v);
             chunksToBeLoaded.Clear();
 
-            foreach (var v in chunksToBeAddedToLoadedChunks) _loadedChunks.Add(chunks[v]);
-            chunksToBeAddedToLoadedChunks.Clear();
-            foreach (var v in chunksToBeRemovedFromLoadedChunks) _loadedChunks.Remove(chunks[v]);
-            chunksToBeRemovedFromLoadedChunks.Clear();
-
             ChunkLoadingEnded?.Invoke(this, EventArgs.Empty);
         }
 
@@ -107,6 +100,9 @@ namespace ConsoleEngine
 
             var bytes = Serializer.ToXmlBytes(saveData);
             Engine.SaveFileManager.SaveChunkBytes(bytes, index);
+
+            _chunks[index] = null;
+            _loadedChunks.Remove(chunk);
         }
 
         public void ScheduleUnloadChunk(int x, int y)
@@ -114,7 +110,6 @@ namespace ConsoleEngine
             if (IsChunkLoaded(x, y) && !chunksToBeUnloaded.Contains(new Vec2i(x, y)))
             {
                 chunksToBeUnloaded.Add(new Vec2i(x, y));
-                chunksToBeRemovedFromLoadedChunks.Add(new Vec2i(x, y));
             }
         }
         public void ScheduleUnloadChunk(Vec2i v) => ScheduleUnloadChunk(v.X , v.Y);
@@ -124,7 +119,6 @@ namespace ConsoleEngine
             if (WasChunkCreated(x, y) && !IsChunkLoaded(x, y))
             {
                 chunksToBeLoaded.Add(new Vec2i(x, y));
-                chunksToBeAddedToLoadedChunks.Add(new Vec2i(x, y));
             }
         }
         public void ScheduleLoadChunk(Vec2i v) => ScheduleLoadChunk(v.X , v.Y);

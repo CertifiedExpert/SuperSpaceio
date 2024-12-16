@@ -3,7 +3,7 @@ using ConsoleEngine;
 
 namespace SpaceioGame
 {
-    class BaseObject : GameObject
+    abstract class BaseObject : GameObject
     {
         public Game Game { get; set; }
 

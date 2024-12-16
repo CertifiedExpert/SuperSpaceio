@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.Serialization;
 using System.IO;
+using System.Linq;
 
 namespace ConsoleEngine
 {
@@ -69,6 +70,20 @@ namespace ConsoleEngine
             OnSave();
             Save();
         }
+
+        // Called once every frame
+        private void EngineUpdate()
+        {
+            // Registers input.
+            InputManager.UpdateInput();
+
+            //UIManager.Update();
+
+            GameObjectManager.Update();
+
+            ChunkManager.Update();
+        }
+
         public void LoadFromSave(string name)
         {
             pathSaveFolder = $"{pathRootFolder}\\Saves\\{name}";
@@ -129,7 +144,8 @@ namespace ConsoleEngine
         public void Save()
         {
             // Unload all chunks
-            foreach (var chunk in ChunkManager.loadedChunks)
+            var loadedChunksCopy = ChunkManager.loadedChunks.ToArray();
+            foreach (var chunk in loadedChunksCopy)
             {
                 ChunkManager.ForceUnloadChunk(chunk.Index.X, chunk.Index.Y);
             }
@@ -164,19 +180,6 @@ namespace ConsoleEngine
             ResourceManager.Init();
             SaveFileManager.Init();
             Renderer.Init();
-        }
-
-        // Called once every frame
-        private void EngineUpdate()
-        {
-            // Registers input.
-            InputManager.UpdateInput();
-
-            //UIManager.Update();
-
-            GameObjectManager.Update();
-
-            ChunkManager.Update();
         }
 
         // Adds GameObject to the engine.

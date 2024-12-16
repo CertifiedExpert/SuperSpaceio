@@ -17,8 +17,15 @@ namespace SpaceioGame
             Serializer.knownTypes.Add(typeof(BaseObjectSaveData));
             Serializer.knownTypes.Add(typeof(ShipSaveData));
 
-            ChunkManager.GenerateEmptyChunk(0, 0);
-            //ChunkManager.ScheduleLoadChunk(0, 0);
+            //ChunkManager.GenerateEmptyChunk(0, 0);
+            //ChunkManager.GenerateEmptyChunk(1, 1);
+            //ChunkManager.GenerateEmptyChunk(-1, -1);
+            //var s = new Ship(new Vec2i(-1100, -1100), 10, this);
+            //AddBaseObject(s);
+
+            ChunkManager.ScheduleLoadChunk(new Vec2i(0, 0));
+            ChunkManager.ScheduleLoadChunk(new Vec2i(1, 1));
+            ChunkManager.ScheduleLoadChunk(new Vec2i(-1, -1));
         }
 
         protected override void Update()
@@ -27,12 +34,8 @@ namespace SpaceioGame
 
             UpdateCamera();
 
-            //ChunkManager.GenerateEmptyChunk(0, 0);
-            //ChunkManager.GenerateEmptyChunk(1, 0);
-            //ChunkManager.GenerateEmptyChunk(-1, -1);
-            //ChunkManager.ScheduleLoadChunk(0, 0);
-            //ChunkManager.ScheduleLoadChunk(-1, -1);
-            //ChunkManager.ScheduleLoadChunk(1, 0);
+            var sUID = new UID(0, 0);
+            var s = (Ship)Find(sUID);
 
             if (i == 3) CloseEngine();
             else i++;
@@ -49,9 +52,6 @@ namespace SpaceioGame
             {
                 case ShipSaveData shipSaveData:
                     return new Ship(this, chunkIndex, shipSaveData);
-
-                case BaseObjectSaveData baseObjectSaveData:
-                    return new BaseObject(this, chunkIndex, baseObjectSaveData);
 
                 default:
                     return null;

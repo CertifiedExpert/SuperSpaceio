@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace ConsoleEngine
 {
-    public class GameObject
+    public abstract class GameObject
     {
         public Engine Engine { get; private set; }
         public Vec2i Chunk { get; internal set; }

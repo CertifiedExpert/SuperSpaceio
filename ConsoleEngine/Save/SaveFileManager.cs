@@ -51,7 +51,7 @@ namespace ConsoleEngine
                     headerEntries[currentHeaderIndex] =
                         new HeaderEntry(index.X, index.Y, headerEntries[currentHeaderIndex].Offset, newNumberOfBytes);
                     for (var i = headerEntries[currentHeaderIndex].Offset + newOccupiedSectors;
-                        i < headerEntries[currentHeaderIndex].Offset + oldLength; i++)
+                        i < headerEntries[currentHeaderIndex].Offset + oldOccupiedSectors; i++)
                     {
                         segmentOccupancy[i] = false;
                     }
@@ -103,7 +103,9 @@ namespace ConsoleEngine
                 }
                 else // if new chunk same size
                 {
-                    WriteChunkDataToFile(bytes, headerEntries[currentHeaderIndex].Offset);
+                    var oldHE = headerEntries[currentHeaderIndex];
+                    headerEntries[currentHeaderIndex] = new HeaderEntry(oldHE.ChunkX, oldHE.ChunkY, oldHE.Offset, bytes.Length);
+                    WriteChunkDataToFile(bytes, oldHE.Offset);
                 }
             }
             else // if chunks does not exist in save file
