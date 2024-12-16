@@ -1,9 +1,8 @@
 ﻿using System.Runtime.Serialization;
 using ConsoleEngine;
 
-namespace Spaceio
+namespace SpaceioGame
 {
-    [DataContract(IsReference = true)]
     sealed class Game : Engine
     {
         int i = 0;
@@ -15,8 +14,11 @@ namespace Spaceio
         public bool playerMovedInThisFrame = false;
         protected override void OnLoad()
         {
-            Serializer.knownTypes.Add(typeof(BaseObject));
-            Serializer.knownTypes.Add(typeof(Ship));
+            Serializer.knownTypes.Add(typeof(BaseObjectSaveData));
+            Serializer.knownTypes.Add(typeof(ShipSaveData));
+
+            ChunkManager.GenerateEmptyChunk(0, 0);
+            //ChunkManager.ScheduleLoadChunk(0, 0);
         }
 
         protected override void Update()
@@ -28,14 +30,33 @@ namespace Spaceio
             //ChunkManager.GenerateEmptyChunk(0, 0);
             //ChunkManager.GenerateEmptyChunk(1, 0);
             //ChunkManager.GenerateEmptyChunk(-1, -1);
-            ChunkManager.ScheduleLoadChunk(0, 0);
-            ChunkManager.ScheduleLoadChunk(-1, -1);
-            ChunkManager.ScheduleLoadChunk(1, 0);
+            //ChunkManager.ScheduleLoadChunk(0, 0);
+            //ChunkManager.ScheduleLoadChunk(-1, -1);
+            //ChunkManager.ScheduleLoadChunk(1, 0);
 
             if (i == 3) CloseEngine();
             else i++;
         }
 
+        public override void Init()
+        {
+            ChunkManager.GameObjectFromSaveDataInterpreter += GameObjectFromSaveDataInterpreter;
+        }
+
+        private GameObject GameObjectFromSaveDataInterpreter(Vec2i chunkIndex, GameObjectSaveData gameObjectSaveData)
+        {
+            switch (gameObjectSaveData)
+            {
+                case ShipSaveData shipSaveData:
+                    return new Ship(this, chunkIndex, shipSaveData);
+
+                case BaseObjectSaveData baseObjectSaveData:
+                    return new BaseObject(this, chunkIndex, baseObjectSaveData);
+
+                default:
+                    return null;
+            }
+        }
         private void UpdateCamera()
         {
             if (InputManager.ArrowUp.IsPressed) Camera.Move(0, Camera.Position.Y + 3);

@@ -14,7 +14,7 @@ namespace ConsoleEngine
     {
         [DataMember] public readonly uint BaseID;
         [DataMember] public readonly uint Generation;
-        internal UID(uint ID = uint.MaxValue, uint generation = uint.MaxValue)    
+        public UID(uint ID = uint.MaxValue, uint generation = uint.MaxValue)   // TODO: temporoary access modifier 'public'. Set it to 'internal' after done debugging
         {
             BaseID = ID;
             Generation = generation;

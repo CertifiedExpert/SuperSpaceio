@@ -145,6 +145,8 @@ namespace ConsoleEngine
             Serializer.ToFile(ResourceManager.GetSaveData(), $"{pathGameState}\\ResourceManager.txt");   
         }
 
+        public abstract void Init();
+
         // Called once on engine load. Initializes the engine.
         private void SetUpEngine()
         {

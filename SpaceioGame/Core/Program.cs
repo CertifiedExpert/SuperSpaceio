@@ -1,7 +1,7 @@
 ﻿using ConsoleEngine;
 using System;
 
-namespace Spaceio
+namespace SpaceioGame
 {
     class Program
     {
@@ -21,8 +21,10 @@ namespace Spaceio
             var renderer = new Renderer(game);
             var inputManager = new InputManager();
 
-            //game.NewSave("test", settings, chunkManager, gameObjectManager, camera, resourceManager, saveFileManager, renderer, inputManager);
-            game.LoadFromSave("test");
+            game.NewSave("test", settings, chunkManager, gameObjectManager, camera, resourceManager, saveFileManager, renderer, inputManager);
+            //game.LoadFromSave("test");
+
+            game.Init();
 
             game.Run();
 

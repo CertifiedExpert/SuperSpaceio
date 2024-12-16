@@ -25,7 +25,10 @@ namespace ConsoleEngine
 
         public delegate void ChunkLoadedEventHandler(Vec2i chunkIndex);
         public event ChunkLoadedEventHandler ChunkLoaded; // Subscribe to this if you want to add changes to chunk after it has been loaded (like ex. growing plants by the amount of time which has passed since Chunks.LastUnloaded.)
-        internal event EventHandler ChunkLoadingEnded; 
+        internal event EventHandler ChunkLoadingEnded;
+
+        public delegate GameObject GameObjectFromSaveDataInterpreterHandler(Vec2i chunkIndex, GameObjectSaveData gameObjectSaveData);
+        public GameObjectFromSaveDataInterpreterHandler GameObjectFromSaveDataInterpreter { get; set; }
         public ChunkManager(Engine engine)
         {
             Engine = engine;
@@ -50,6 +53,7 @@ namespace ConsoleEngine
             {
                 _chunks.Add(c.Index, c);
                 _loadedChunks.Add(c);
+                ChunkLoaded?.Invoke(c.Index);
             }
             chunksToBeGenerated.Clear();
 

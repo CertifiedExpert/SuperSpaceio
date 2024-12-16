@@ -1,21 +1,15 @@
 ﻿using System.Runtime.Serialization;
 using ConsoleEngine;
 
-namespace Spaceio
+namespace SpaceioGame
 {
-    [DataContract(IsReference = true)]
     class Ship : BaseObject
     {
-        [DataMember]
         public Vec2f Velocity { get; set; } // Stored in units moved per second (not taking mass into account)
-        [DataMember]
         public int Mass { get; set; }
-        [DataMember]
         public int ThrustStrength { get; set; }
 
-        [DataMember]
         protected Sprite[] movementSprites = new Sprite[8]; // index 0: facing right, next indexes rotating counter clockwise
-        [DataMember]
         private Vec2f restOfVelocity = new Vec2f(0, 0);
 
         public Ship(Vec2i position, int mass, Game game) : base(position, game)
@@ -24,12 +18,17 @@ namespace Spaceio
             Velocity = new Vec2f(0, 0);
         }
 
+        public Ship(Game game, Vec2i chunkIndex, ShipSaveData saveData) : base(game, chunkIndex, saveData)
+        {
+
+        }
+
         public override void Update()
         {
             base.Update();
 
-            Move();
-            UpdateSprite();
+            //Move();
+            //UpdateSprite();
         }
         
         public void ApplyForce(Vec2f force)
@@ -71,6 +70,16 @@ namespace Spaceio
 
             Velocity = new Vec2f(0, 0);
             restOfVelocity = new Vec2f(0, 0);
+        }
+
+        public override GameObjectSaveData GetSaveData()
+        {
+            var baseObjectSaveData = (BaseObjectSaveData)base.GetSaveData();
+            var shipSaveData = new ShipSaveData(baseObjectSaveData);
+
+            // things specific for ShipSaveData
+
+            return shipSaveData;
         }
     }
 }

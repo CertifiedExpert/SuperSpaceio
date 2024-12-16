@@ -38,7 +38,7 @@ namespace ConsoleEngine
             Colliders = new List<Collider>();
         }
 
-        internal GameObject(Engine engine, Vec2i chunk, GameObjectSaveData saveData)
+        public GameObject(Engine engine, Vec2i chunk, GameObjectSaveData saveData)
         {
             Engine = engine;
             Chunk = chunk;
@@ -145,7 +145,7 @@ namespace ConsoleEngine
             }
         }
 
-        internal virtual GameObjectSaveData GetSaveData()
+        public virtual GameObjectSaveData GetSaveData()
         {
             var sd = new GameObjectSaveData();
             sd.UID = UID;

@@ -15,5 +15,15 @@ namespace ConsoleEngine
         [DataMember] internal int SpriteLevel;
         [DataMember] internal List<SpriteSaveData> Sprites;
         [DataMember] internal List<ColliderSaveData> Colliders;
+
+        internal GameObjectSaveData() { }
+        protected GameObjectSaveData(GameObjectSaveData gameObjectManagerSaveData)
+        {
+            UID = gameObjectManagerSaveData.UID;
+            Position = gameObjectManagerSaveData.Position;
+            SpriteLevel = gameObjectManagerSaveData.SpriteLevel;
+            Sprites = gameObjectManagerSaveData.Sprites;
+            Colliders = gameObjectManagerSaveData.Colliders;
+        }
     }
 }

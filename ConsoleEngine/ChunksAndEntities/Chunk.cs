@@ -49,7 +49,8 @@ namespace ConsoleEngine
             LastUnloaded = saveData.lastUnloaded;
             foreach (var gameObjectSaveData in saveData.gameObjects)
             {
-                var go = new GameObject(Engine, Index, gameObjectSaveData);
+                //var go = new GameObject(Engine, Index, gameObjectSaveData);
+                var go = Engine.ChunkManager.GameObjectFromSaveDataInterpreter?.Invoke(index, gameObjectSaveData);
                 _gameObjects.Add(go.UID, go);
                 _gameObjectRenderLists[go.SpriteLevel].Add(go);
             }
