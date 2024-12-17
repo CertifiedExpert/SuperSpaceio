@@ -42,7 +42,7 @@ namespace ConsoleEngine
             var sd = new SpriteSaveData();
             sd.BitmapID = BitmapID;
             sd.AttachmentPos = AttachmentPos;
-            sd.Animator = Animator.GetSaveData();
+            sd.Animator = Animator?.GetSaveData();
             sd.Shader = Shader.GetSaveData();
             return sd;
         }

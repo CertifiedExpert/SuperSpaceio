@@ -1,8 +1,11 @@
 ﻿using ConsoleEngine;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace SpaceioGame
 {
+    //screen buffer size x: 250 y: 115 font: 10 
+    //settings x: 125 y: 98
     class Program
     {
         [STAThread]
@@ -10,7 +13,7 @@ namespace SpaceioGame
         {
             var game = new Game();
 
-            var settings = new Settings(10, ' ', "  " , 1000, 196, 99, 1000);
+            var settings = new Settings(10, 'O', "  " , 1000, 128, 98, 1000);
             var chunkManager = new ChunkManager(game);
             var uIDManager = new UIDManager();
             var gameObjectManager = new GameObjectManager(game, uIDManager);
@@ -21,8 +24,8 @@ namespace SpaceioGame
             var renderer = new Renderer(game);
             var inputManager = new InputManager();
 
-            //game.NewSave("test", settings, chunkManager, gameObjectManager, camera, resourceManager, saveFileManager, renderer, inputManager);
-            game.LoadFromSave("test");
+            game.NewSave("test", settings, chunkManager, gameObjectManager, camera, resourceManager, saveFileManager, renderer, inputManager);
+            //game.LoadFromSave("test");
 
             game.Init();
 

@@ -37,8 +37,8 @@ namespace SpaceioGame
             var s = (Ship)Find(shipUID);
             s?.MoveGameObject(1, 0);
 
-            //if (i == 3) CloseEngine();
-            //else i++;
+            if (i == 300) CloseEngine();
+            else i++;
         }
 
         public override void Init()

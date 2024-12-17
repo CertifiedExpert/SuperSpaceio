@@ -85,13 +85,19 @@ namespace ConsoleEngine
             var header = data.Take(headerSize).ToArray();
             var hTpl = DecodeBitmapHeaderBytes(header);
             var chars = Encoding.UTF8.GetChars(data, headerSize, data.Length - headerSize);
-            return new Tuple<ResID, Bitmap>(new ResID(hTpl.Item1, hTpl.Item2), new Bitmap(chars, new Vec2i(hTpl.Item3, hTpl.Item4))); 
+            var result = new Tuple<ResID, Bitmap>(new ResID(hTpl.Item1, hTpl.Item2), new Bitmap(chars, new Vec2i(hTpl.Item3, hTpl.Item4))); 
+
+            var name = Path.GetFileNameWithoutExtension(p);
+            if (!namesAndResIDs.ContainsKey(name)) namesAndResIDs.Add(name, result.Item1);
+
+            return result;
         }
 
         public void SaveBitmapToResourceFolder(string name, ResID resID) // TODO: instead of using dataserializer save as pure bytes to reduce space
         {
             //TODO: add checks if already exists (then don't add), don't allow overwrite of existing resources
-            namesAndResIDs.Add(name, resID);
+            if (!namesAndResIDs.ContainsKey(name)) namesAndResIDs.Add(name, resID);
+
             var size = bitmaps[resID].Size;
             var headerBytes = EncodeBitmapHeaderBytes(resID, bitmaps[resID].Size);
             //var bitmapDataBytes = Serializer.ToXmlBytes(bitmaps[resID].Data);
