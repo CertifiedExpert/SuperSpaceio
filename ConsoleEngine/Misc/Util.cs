@@ -16,7 +16,7 @@ namespace ConsoleEngine
             {
                 for (var x = 0; x < array2D.GetLength(0); x++)
                 {
-                    result[y * array2D.GetLength(1) + x] = array2D[x, y];
+                    result[y * array2D.GetLength(0) + x] = array2D[x, y];
                 }
             }
 

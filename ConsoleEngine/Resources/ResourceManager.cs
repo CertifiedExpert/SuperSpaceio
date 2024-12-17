@@ -28,9 +28,11 @@ namespace ConsoleEngine
             resFolderPath = $"{engine.pathRootFolder}\\Resources";
 
             ResIDManager = new ResIDManager(saveData.ResIDManager);
+            namesAndResIDs = saveData.namesAndResIDs;
+            foreach (var resID in namesAndResIDs.Values) bitmaps.Add(resID, null);
         }
 
-        private Dictionary<string, ResID> namesAndResIDs = new Dictionary<string, ResID>(); 
+        private BijectiveDictionary<string, ResID> namesAndResIDs = new BijectiveDictionary<string, ResID>();
         private Dictionary<ResID, Bitmap> bitmaps = new Dictionary<ResID, Bitmap>();
         public ReadOnlyDictionary<ResID, Bitmap> Bitmaps { get; }
 
@@ -39,7 +41,7 @@ namespace ConsoleEngine
             resFolderPath = $"{Engine.pathRootFolder}\\Resources";
         }
 
-        internal void LoadAllBitmapsFromFolder(string path)
+        public void LoadAllBitmapsFromFolder(string path)
         {
             try
             {
@@ -49,21 +51,16 @@ namespace ConsoleEngine
                 {
                     var tuple = LoadBitmapFromPath(p);
 
-                    if (bitmaps.ContainsKey(tuple.Item1)) bitmaps[tuple.Item1] = tuple.Item2;
-                    else
-                    {
-                        var resID = AddBitmap(tuple.Item2);
-                        namesAndResIDs.Add(Path.GetFileNameWithoutExtension(p), resID);
-                    }
+                    bitmaps[tuple.Item1] = tuple.Item2;
                 }
             }
             catch { }
         }
 
         // Returns ResIDManager.InvalidResID if no resource with this name exists
-        public ResID GetResID(string name)
+        public ResID GetResID(string name) //TODO: is this even needed?
         {
-            if (namesAndResIDs.ContainsKey(name)) return namesAndResIDs[name];
+            if (namesAndResIDs.ContainsKey(name)) return namesAndResIDs.GetValue(name);
             else return ResIDManager.InvalidResID;
         }
 
@@ -91,16 +88,17 @@ namespace ConsoleEngine
             return new Tuple<ResID, Bitmap>(new ResID(hTpl.Item1, hTpl.Item2), new Bitmap(chars, new Vec2i(hTpl.Item3, hTpl.Item4))); 
         }
 
-        private void SaveBitmapToResourceFolder(string name, ResID resID) 
+        public void SaveBitmapToResourceFolder(string name, ResID resID) // TODO: instead of using dataserializer save as pure bytes to reduce space
         {
             //TODO: add checks if already exists (then don't add), don't allow overwrite of existing resources
             namesAndResIDs.Add(name, resID);
             var size = bitmaps[resID].Size;
             var headerBytes = EncodeBitmapHeaderBytes(resID, bitmaps[resID].Size);
-            var bitmapDataBytes = Serializer.ToXmlBytes(bitmaps[resID].Data);
+            //var bitmapDataBytes = Serializer.ToXmlBytes(bitmaps[resID].Data);
+            var bitmapDataBytes = Encoding.UTF8.GetBytes(bitmaps[resID].Data);
             var data = headerBytes.Concat(bitmapDataBytes).ToArray();
 
-            using (var fs = new FileStream($"{resFolderPath}\\{name}\\.txt", FileMode.CreateNew, FileAccess.Write))
+            using (var fs = new FileStream($"{resFolderPath}\\{name}.txt", FileMode.CreateNew, FileAccess.Write))
             {
                 fs.Write(data, 0, data.Length);
             }
@@ -124,21 +122,30 @@ namespace ConsoleEngine
             var y = BitConverter.GetBytes(size.Y);
 
             for (var i = 0; i < baseIDb.Length; i++) bytes[i] = baseIDb[i];
-            for (var i = baseIDb.Length; i < baseIDb.Length + generationb.Length; i++) bytes[i] = generationb[i];
-            for (var i = baseIDb.Length + generationb.Length; i < baseIDb.Length + generationb.Length + x.Length; i++) bytes[i] = x[i];
-            for (var i = baseIDb.Length + generationb.Length + x.Length; i < bytes.Length; i++) bytes[i] = y[i];
+            for (var i = 0; i < generationb.Length; i++) bytes[sizeof(uint) + i] = generationb[i];
+            for (var i = 0; i < x.Length; i++) bytes[sizeof(uint) * 2+ i] = x[i];
+            for (var i = 0; i < y.Length; i++) bytes[sizeof(uint) * 2 + sizeof(int) + i] = y[i];
 
             return bytes;   
+        }
+        internal void OnSave()
+        {
+            foreach (var resID in bitmaps.Keys)
+            {
+                // Checks if this bitmap was dynamically created and does not have a save file. Remove it before saving.
+                if (!namesAndResIDs.ContainsValue(resID)) RemoveBitmap(resID);
+            }
         }
 
         internal ResourceManagerSaveData GetSaveData()
         {
             var sd = new ResourceManagerSaveData();
             sd.ResIDManager = ResIDManager.GetSaveData();
+            sd.namesAndResIDs = namesAndResIDs;
             return sd;
         }
 
-        public static char[,] test2D = new char[9, 9]
+        public static char[,] test = new char[9, 9]
         {
                 {'L',' ', '-', '-', 'T','-', '-', ' ', 'R'},
                 {' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' '},
@@ -150,28 +157,9 @@ namespace ConsoleEngine
                 {' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' '},
                 {'L',' ', '-', '-', 'B','-', '-', ' ', 'R'},
         };
-        public static char[] test = Util.Flatten2dArray(test2D);
 
-        public static Bitmap fighter1Up;
-        public static Bitmap fighter1Down;
-        public static Bitmap fighter1Right;
-        public static Bitmap fighter1Left;
 
-        public static Bitmap fighter1UpLeft;
-        public static Bitmap fighter1UpRight;
-        public static Bitmap fighter1DownLeft;
-        public static Bitmap fighter1DownRight;
-
-        public static Bitmap enemyDefault;
-        public static Bitmap enemyDefault2;
-
-        public static Bitmap asteroid;
-        public static void Initialize()
-        {
-            /*
-            #region FighterSprites
-
-            var fighter1UpBitmap = new char[9, 9]
+        public static char[,] fighter1Up = new char[9, 9]
             {
                 {' ',' ', ' ', ' ', '%',' ', ' ', ' ', ' '},
                 {' ',' ', ' ', ' ', '%',' ', ' ', ' ', ' '},
@@ -183,9 +171,7 @@ namespace ConsoleEngine
                 {'@','%', '%', '%', '%','%', '%', '%', '@'},
                 {' ',' ', '\\', '#', ' ','#', '/', ' ', ' '},
             };
-            fighter1Up = new Bitmap(PrepareData(fighter1UpBitmap));
-
-            var fighter1DownBitmap = new char[9, 9]
+        public static char[,] fighter1Down = new char[9, 9]
             {
                 {' ',' ', '/', '#', ' ','#', '\\', ' ', ' '},
                 {'@','%', '%', '%', '%','%', '%', '%', '@'},
@@ -197,9 +183,7 @@ namespace ConsoleEngine
                 {' ',' ', ' ', ' ', '%',' ', ' ', ' ', ' '},
                 {' ',' ', ' ', ' ', '%',' ', ' ', ' ', ' '},
             };
-            fighter1Down = new Bitmap(PrepareData(fighter1DownBitmap));
-
-            var fighter1RightBitmap = new char[9, 9]
+        public static char[,] fighter1Right = new char[9, 9]
             {
                 {' ','@', '―', '-', ' ',' ', ' ', ' ', ' '},
                 {' ','%', '%', ' ', ' ',' ', ' ', ' ', ' '},
@@ -211,10 +195,7 @@ namespace ConsoleEngine
                 {' ','%', '%', ' ', ' ',' ', ' ', ' ', ' '},
                 {' ','@', '―', '-', ' ',' ', ' ', ' ', ' '},
             };
-            fighter1Right = new Bitmap(PrepareData(fighter1RightBitmap));
-
-
-            var fighter1LeftBitmap = new char[9, 9]
+        public static char[,] fighter1Left = new char[9, 9]
             {
                 {' ',' ', ' ', ' ', ' ','-', '―', '@', ' '},
                 {' ',' ', ' ', ' ', ' ',' ', '%', '%', ' '},
@@ -226,10 +207,8 @@ namespace ConsoleEngine
                 {' ',' ', ' ', ' ', ' ',' ', '%', '%', ' '},
                 {' ',' ', ' ', ' ', ' ','-', '―', '@', ' '},
             };
-            fighter1Left = new Bitmap(PrepareData(fighter1LeftBitmap));
 
-
-            var fighter1UpLeftBitmap = new char[9, 9]
+        public static char[,] fighter1UpLeft = new char[9, 9]
             {
                 {'%','%', '%', ' ', ' ',' ', '\\', ' ', ' '},
                 {'%','.', '.', '%', '%','%', ' ', '\\', ' '},
@@ -241,9 +220,7 @@ namespace ConsoleEngine
                 {' ','\\', '%', '%', '―','#', ' ', ' ', ' '},
                 {' ',' ', '@', ' ', ' ',' ', ' ', ' ', ' '}
             };
-            fighter1UpLeft = new Bitmap(PrepareData(fighter1UpLeftBitmap));
-
-            var fighter1UpRightBitmap = new char[9, 9]
+        public static char[,] fighter1UpRight = new char[9, 9]
             {
                 {' ',' ', '/', ' ', ' ',' ', '%', '%', '%'},
                 {' ','/', '.', '%', '%','%', '.', '.', '%'},
@@ -255,9 +232,7 @@ namespace ConsoleEngine
                 {' ',' ', ' ', '#', '―','%', '%', '/', ' '},
                 {' ',' ', ' ', ' ', ' ',' ', '@', ' ', ' '}
             };
-            fighter1UpRight = new Bitmap(PrepareData(fighter1UpRightBitmap));
-
-            var fighter1DownLeftBitmap = new char[9, 9]
+        public static char[,] fighter1DownLeft = new char[9, 9]
             {
                 {' ',' ', '@', ' ', ' ',' ', ' ', ' ', ' '},
                 {' ','/', '%', '%', '―','#', ' ', ' ', ' '},
@@ -269,9 +244,7 @@ namespace ConsoleEngine
                 {'%','.', '.', '%', '%','%', ' ', '/', ' '},
                 {'%','%', '%', ' ', ' ',' ', '/', ' ', ' '},
             };
-            fighter1DownLeft = new Bitmap(PrepareData(fighter1DownLeftBitmap));
-
-            var fighter1DownRightBitmap = new char[9, 9]
+        public static char[,] fighter1DownRight = new char[9, 9]
             {
                 {' ',' ', ' ', ' ', ' ',' ', '@', ' ', ' '},
                 {' ',' ', ' ', '#', '―','%', '%', '\\', ' '},
@@ -283,31 +256,23 @@ namespace ConsoleEngine
                 {' ','\\', ' ', '%', '%','%', '.', '.', '%'},
                 {' ',' ', '\\', ' ', ' ',' ', '%', '%', '%'},
             };
-            fighter1DownRight = new Bitmap(PrepareData(fighter1DownRightBitmap));
-            #endregion
 
-            #region EnemyDefaults
-
-            var enemyDefaultBitmap = new char[4, 3]
+        public static char[,] enemyDefault1 = new char[4, 3]
             {
                 {' ', '#', ' '},
                 {'#', '+', '#'},
                 {'#', '+', '#'},
                 {'#', '+', '#'},
             };
-            enemyDefault = new Bitmap(PrepareData(enemyDefaultBitmap));
-
-            var enemyDefault2Bitmap = new char[4, 3]
+        public static char[,] enemyDefault2 = new char[4, 3]
             {
                 {' ', '#', ' '},
                 {'#', ' ', '#'},
                 {'#', ' ', '#'},
                 {'#', ' ', '#'},
             };
-            enemyDefault2 = new Bitmap(PrepareData(enemyDefault2Bitmap));
-            #endregion
 
-            var asteroidBitmap = new char[18, 18]
+        public static char[,] asteroid = new char[18, 18]
             {
                 {' ', ' ', ' ', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -328,9 +293,10 @@ namespace ConsoleEngine
                 {' ', ' ', ' ', ' ', ' ', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛'},
                 {' ', ' ', ' ', ' ', ' ', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛'},
             };
-
-            asteroid = new Bitmap(PrepareData(asteroidBitmap));
-            */
+        public static void Initialize()
+        {
+            
+            
         }
 
 

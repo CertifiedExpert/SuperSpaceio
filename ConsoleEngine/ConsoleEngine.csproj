@@ -64,6 +64,7 @@
     <Compile Include="Math\ReadOnlyVec2i.cs" />
     <Compile Include="Math\Vec2f.cs" />
     <Compile Include="Math\Vec2i.cs" />
+    <Compile Include="Misc\BijectiveDictionary.cs" />
     <Compile Include="Misc\Util.cs" />
     <Compile Include="Physics\Collider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

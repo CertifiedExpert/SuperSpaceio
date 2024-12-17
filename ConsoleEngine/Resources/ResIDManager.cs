@@ -22,6 +22,7 @@ namespace ConsoleEngine
             if (freeResIDs.Count == 0)
             {
                 FillUIDPool(totalResIDcount, totalResIDcount + 50);
+                totalResIDcount += 50;
             }
 
             var resID = freeResIDs[0];

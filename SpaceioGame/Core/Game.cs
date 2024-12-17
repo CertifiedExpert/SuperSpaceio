@@ -19,17 +19,13 @@ namespace SpaceioGame
             Serializer.knownTypes.Add(typeof(BaseObjectSaveData));
             Serializer.knownTypes.Add(typeof(ShipSaveData));
 
+            ResourceManager.LoadAllBitmapsFromFolder(ResourceManager.resFolderPath);
+
             ChunkManager.GenerateEmptyChunk(0, 0);
-
-            var bitmap = new Bitmap(ResourceManager.test, new Vec2i(9, 9));
-            var testBitmapID = ResourceManager.AddBitmap(bitmap);
-
-            var s = new Ship(new Vec2i(0, 0), 10, this);
-            var sprite = new Sprite(testBitmapID);
-            s.Sprites.Add(sprite);
-            shipUID = AddBaseObject(s);
-
-            //ChunkManager.ScheduleLoadChunk(new Vec2i(0, 0));
+            var sprite = new Sprite(ResourceManager.GetResID("test"));
+            var ship = new Ship(new Vec2i(0, 0), 10, this);
+            ship.Sprites.Add(sprite);
+            shipUID = AddBaseObject(ship);
         }
 
         protected override void Update()
@@ -39,7 +35,7 @@ namespace SpaceioGame
             UpdateCamera();
 
             var s = (Ship)Find(shipUID);
-            s.MoveGameObject(1, 0);
+            s?.MoveGameObject(1, 0);
 
             //if (i == 3) CloseEngine();
             //else i++;
@@ -83,3 +79,7 @@ namespace SpaceioGame
         }
     }
 }
+
+// STORAGE //
+
+//ResourceManager.SaveBitmapToResourceFolder("test", ResourceManager.AddBitmap(new Bitmap(Util.Flatten2dArray(ResourceManager.PrepareData(ResourceManager.test)), new Vec2i(9, 9))));

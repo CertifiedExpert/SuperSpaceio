@@ -151,14 +151,15 @@ namespace ConsoleEngine
             }
             SaveFileManager.WriteHeaderToFile($"{pathWorldFolder}\\ChunkHeader.txt");
 
-            // Save engine state (if such even exists)
-
             // Save managers
             Serializer.ToFile(Settings, $"{pathGameState}\\Settings.txt");
             Serializer.ToFile(ChunkManager.GetSaveData(), $"{pathGameState}\\ChunkManager.txt");
             Serializer.ToFile(GameObjectManager.GetSaveData(), $"{pathGameState}\\GameObjectManager.txt");
             Serializer.ToFile(Camera.GetSaveData(), $"{pathGameState}\\Camera.txt");
+            ResourceManager.OnSave();
             Serializer.ToFile(ResourceManager.GetSaveData(), $"{pathGameState}\\ResourceManager.txt");   
+
+            // Save engine state (if such even exists)
         }
 
         public abstract void Init();

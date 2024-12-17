@@ -23,6 +23,7 @@ namespace ConsoleEngine
             if (freeUIDs.Count == 0) 
             {
                 FillUIDPool(totalUIDcount, totalUIDcount + 50);
+                totalUIDcount += 50;
             }
 
             var uid = freeUIDs[0];
