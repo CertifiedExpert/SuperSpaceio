@@ -42,11 +42,9 @@ namespace ConsoleEngine
 
         public override void DrawComponentToBitmap(Bitmap bitmap)
         {
-            base.DrawComponentToBitmap(bitmap);
-
             if (Outline != null)
             {
-                bitmap.DrawRectangleOutline(Position, Size - new Vec2i(1, 1), Outline.Value);
+                DrawRectangleOutline(buffer, realPos, Outline);
             }
 
             var size = new Vec2i((int)(BarSize.X * Progress), (int)(BarSize.Y * Progress)); //TODO: round this not cast

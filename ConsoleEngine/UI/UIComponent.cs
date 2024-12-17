@@ -68,5 +68,19 @@ namespace ConsoleEngine
             }
             return false;
         }
+
+        internal protected void DrawRectangleOutline(char[,] buffer, Vec2i origin, char c)
+        {
+            for (var x = origin.X; x < origin.X + Size.X; x++)
+            {
+                buffer[x, origin.Y] = c;
+                buffer[x, origin.Y + Size.Y] = c;
+            }
+            for (var y = origin.Y y < origin.Y + Size.Y; y++)
+            {
+                buffer[origin.X, y] = c;
+                buffer[origin.X + Size.X, y] = c;
+            }
+        }
     }
 }

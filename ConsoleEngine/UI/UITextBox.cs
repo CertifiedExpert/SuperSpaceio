@@ -15,7 +15,8 @@ namespace ConsoleEngine
         public char? Outline { get; set; } // Null means no outline.
         public bool SpacedLetters { get; set; }
         public Vec2i TextPosition { get; set; }
-        public UITextBox(Vec2i position, Vec2i size, Vec2i textPosition, string text, char? outline = null, bool? spacedLetters = null) : base(position, size)
+        public UITextBox(Vec2i position, Vec2i size, char background, int priority, Vec2i textPosition, string text,
+         char? outline = null, bool? spacedLetters = null, Engine engine) : base(engine, position, size, background, priority)
         {
             Text = text;
             TextPosition = textPosition;
@@ -28,13 +29,13 @@ namespace ConsoleEngine
             
         }
 
-        public override void DrawComponentToBitmap(Bitmap bitmap)
+        public override void DrawComponentToBuffer(char [,] buffer, Vec2i offset)
         {
-            base.DrawComponentToBitmap(bitmap);
-            
+            var realPos = Position + offset;
+
             if (Outline != null)
             {
-                bitmap.DrawRectangleOutline(Position, Size, Outline.Value);
+                DrawRectangleOutline(buffer, realPos, Outline);
             }
 
             if (SpacedLetters)
@@ -43,7 +44,7 @@ namespace ConsoleEngine
                 limit = Math.Min(limit, Text.Length);
                 for (var i = 0; i < limit; i++)
                 {
-                    bitmap.SetAt(TextPosition.X + 2 * i, TextPosition.Y, Text[i]);
+                    buffer[realPos.X + TextPosition.X + 2 * i, TextPosition.Y] = Text[i];
                 }
             }
             else
@@ -52,7 +53,7 @@ namespace ConsoleEngine
                 limit = Math.Min(limit, Text.Length);
                 for (var i = 0; i < limit; i++)
                 {
-                    bitmap.SetAt(TextPosition.X + i, TextPosition.Y, Text[i]);
+                    buffer[realPos.X + TextPosition.X + i, realPos.Y + TextPosition.Y] = Text[i];
                 }
             }
         }
