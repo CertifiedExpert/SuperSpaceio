@@ -81,7 +81,7 @@ namespace ConsoleEngine
         private void DrawUI()
         {
             // Order parentUIPanels by descending priority.
-            var orderedPanels = Engine.UIManager.ParentUIPanels.OrderByDescending(p => p.Priority);
+            var orderedPanels = Engine.UIManager.ParentUIPanels.OrderByAscending(p => p.Priority);
 
             foreach (var panel in orderedPanels) WriteParentPanelToScreenBuffer(panel);
         }
@@ -140,16 +140,15 @@ namespace ConsoleEngine
         // Renders the Sprite of the provided parent UIPanel to the screenBuffer. 
         private void WriteParentPanelToScreenBuffer(UIPanel uiPanel)
         {
-            /*
-            var sprite = uiPanel.GetParentPanelSprite();
-            for (var x = 0; x < sprite.BitmapID.Size.X; x++)
+            for (var x = uiPanel.Position.X; x < uiPanel.Position.X + uiPanel.Size.X; x++)
             {
-                for (var y = 0; y < sprite.BitmapID.Size.Y; y++)
+                for (var y = uiPanel.Position.Y; y < uiPanel.Position.Y + uiPanel.Size.Y; y++)
                 {
-                    screenBuffer[uiPanel.Position.X + x, uiPanel.Position.Y + y] = sprite.BitmapID.Data[x, y];
+                    screenBuffer[x, y] = uiPanel.Background;
                 }
             }
-            */
+
+            uiPanel.DrawComponentToBuffer(screenBuffer, new Vec2i(0, 0));
         }
     }
 }

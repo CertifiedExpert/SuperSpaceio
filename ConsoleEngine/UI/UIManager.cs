@@ -6,14 +6,10 @@ using System.Runtime.Serialization;
 
 namespace ConsoleEngine
 {
-    //TODO: serialization (if necessary)
-    //TODO: exception and error handling
-    [DataContract]
     public class UIManager 
     {
         public Engine Engine { get; private set; }
 
-        //[DataMember]
         List<UIPanel> _parentUIPanels;
         public ReadOnlyCollection<UIPanel> ParentUIPanels { get; private set; }
 
@@ -37,12 +33,6 @@ namespace ConsoleEngine
         public void RemoveParentUIPanel(UIPanel uiPanel)
         {
             _parentUIPanels.Remove(uiPanel);
-        }
-        
-        public void CompleteDataAfterDeserialization(Engine engine)
-        {
-            Engine = engine;
-            //ParentUIPanels = _parentUIPanels.AsReadOnly();
         }
     }
 }
