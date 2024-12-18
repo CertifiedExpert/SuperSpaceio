@@ -87,7 +87,7 @@ namespace ConsoleEngine
         }
 
         // Draws the contents of the screenBuffer to the console with pixelSpacingCharacters in between them to account for the unequal ration of height and width of unicode characters.
-        private void Draw()
+        private void Draw() //TODO: optimize this, mb use string builder or preallocate the entire line string
         {
             Console.SetCursorPosition(0, 0);
 
@@ -137,9 +137,33 @@ namespace ConsoleEngine
                 } 
             }
         }
+
+        public void WriteImageBoxSpriteToBuffer(char[,] buffer, Vec2i offset, Vec2i cutOff, Sprite sprite) //TODO; check for bugs, clean up
+        {
+            var bitmap = Engine.ResourceManager.Bitmaps[sprite.BitmapID]; // TODO: check if the bitmap was retrieved succesfully
+            var realPosX = offset.X; 
+            var realPosY = offset.Y;
+
+            var endX = (realPosX + bitmap.Size.X <= cutOff.X) 
+                        ? bitmap.Size.X : cutOff.X - realPosX;
+
+            var endY = (realPosY + bitmap.Size.Y <= cutOff.Y)
+                        ? bitmap.Size.Y: cutOff.Y - realPosY;
+
+            for (var x = 0; x < endX; x++)
+            {
+                for (var y = 0; y < endY; y++)
+                {
+                    screenBuffer[realPosX + x, realPosY + y] = 
+                        sprite.Shader.ShaderMethod(x, y, bitmap, sprite.Shader.Args);
+                }
+            }
+        }
+
         // Renders the Sprite of the provided parent UIPanel to the screenBuffer. 
         private void WriteParentPanelToScreenBuffer(UIPanel uiPanel)
         {
+            /*
             for (var x = uiPanel.Position.X; x < uiPanel.Position.X + uiPanel.Size.X; x++)
             {
                 for (var y = uiPanel.Position.Y; y < uiPanel.Position.Y + uiPanel.Size.Y; y++)
@@ -147,7 +171,7 @@ namespace ConsoleEngine
                     screenBuffer[x, y] = uiPanel.Background;
                 }
             }
-
+            */
             uiPanel.DrawComponentToBuffer(screenBuffer, new Vec2i(0, 0));
         }
     }

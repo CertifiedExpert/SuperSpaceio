@@ -33,6 +33,8 @@ namespace ConsoleEngine
         {
             var realPos = Position + offset;
 
+            FillWithBackground(buffer, realPos);
+
             if (Outline != null)
             {
                 DrawRectangleOutline(buffer, realPos, Outline.Value);

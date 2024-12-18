@@ -9,25 +9,38 @@ namespace ConsoleEngine
     public class UIImageBox : UIComponent
     {
         public char? Outline { get; set; }
-        public Bitmap Image { get; private set; }
-        public Vec2i ImagePosition { get; private set; }
+        public Sprite Sprite { get; private set; } //Sprite attachment position is ignored by UIImageBox. Image position is used instead
+        private Vec2i _imagePosition;
+        public Vec2i ImagePosition 
+        { 
+            get => _imagePosition;
+            set
+            {
+                if (value.X < 0 || value.Y < 0) _imagePosition = new Vec2i(0, 0)
+                else _imagePosition = value;
+            }
+        }
+
         public UIImageBox(Vec2i position, Vec2i size) : base(position, size) { }
 
         public override void Update() { }
         
-        public void SetImage(Bitmap image, Vec2i imagePosition)
+        public void SetImage(Sprite image, Vec2i imagePosition)
         {
-            Image = image;
+            Sprite = image;
             ImagePosition = imagePosition;
         }
         
-        public override void DrawComponentToBitmap(Bitmap bitmap)
+        public override void DrawComponentToBuffer(char[,] buffer, Vec2i origin)
         {
-            base.DrawComponentToBitmap(bitmap);
+            var realPos = Position + origin;
 
-            if (Outline != null) bitmap.DrawRectangleOutline(Position, Size, Outline.Value);
+            FillWithBackground(buffer, realPos);
+            
+            if (Outline != null) DrawRectangleOutline(buffer, realPos, Outline.Value);
 
-            if (Image != null) bitmap.DrawBitmap(Image, Position + ImagePosition, Size);
+            if (Sprite != null) Engine.Renderer.WriteImageBoxSpriteToBuffer(buffer, Position + ImagePosition,
+                                    Position + Size, Sprite);
         }
     }
 }

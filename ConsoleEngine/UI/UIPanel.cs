@@ -38,9 +38,12 @@ namespace ConsoleEngine
 
         public override void DrawComponentToBuffer(char[,] buffer, Vec2i offset)
         {
+            var realPos = offset + Position;
+
+            FillWithBackground(buffer, realPos);
+
             children.OrderBy(c => c.Priority);
-            var thisOffset = offset + Position;
-            foreach (var child in children) child.DrawComponentToBuffer(buffer, thisOffset);
+            foreach (var child in children) child.DrawComponentToBuffer(buffer, realPos);
         }
     }
 }

@@ -25,7 +25,18 @@ namespace ConsoleEngine
         }
         public abstract void Update();
 
-        public abstract void DrawComponentToBuffer(char[,] buffer, Vec2i offset);
+        public abstract void DrawComponentToBuffer(char[,] buffer, Vec2i offset)
+
+        protected void FillWithBackground(char[,] buffer, Vec2i offset)
+        {
+            for (var x = offset.X; x < offset.X + Size.X; x++)
+            {
+                for (var y = offset.Y; y < offset.Y + Size.Y; y++)
+                {
+                    buffer[x, y] = Background;
+                }
+            }
+        }
 
         public UIComponent(Vec2i position, Vec2i size)
         {
