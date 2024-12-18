@@ -16,7 +16,7 @@ namespace ConsoleEngine
         public bool SpacedLetters { get; set; }
         public Vec2i TextPosition { get; set; }
         public UITextBox(Vec2i position, Vec2i size, char background, int priority, Vec2i textPosition, string text,
-         char? outline = null, bool? spacedLetters = null, Engine engine) : base(engine, position, size, background, priority)
+         Engine engine, char? outline = null, bool? spacedLetters = null) : base(engine, position, size, background, priority)
         {
             Text = text;
             TextPosition = textPosition;
@@ -35,7 +35,7 @@ namespace ConsoleEngine
 
             if (Outline != null)
             {
-                DrawRectangleOutline(buffer, realPos, Outline);
+                DrawRectangleOutline(buffer, realPos, Outline.Value);
             }
 
             if (SpacedLetters)

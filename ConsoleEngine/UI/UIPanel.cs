@@ -21,7 +21,7 @@ namespace ConsoleEngine
             Children = children.AsReadOnly();
         }
 
-        public virtual void Update()
+        public override void Update()
         {
             foreach (var uiComponent in Children) uiComponent.Update();
         }
@@ -38,7 +38,7 @@ namespace ConsoleEngine
 
         public override void DrawComponentToBuffer(char[,] buffer, Vec2i offset)
         {
-            children.OrderByAscending(c => c.Piority);
+            children.OrderBy(c => c.Priority);
             var thisOffset = offset + Position;
             foreach (var child in children) child.DrawComponentToBuffer(buffer, thisOffset);
         }

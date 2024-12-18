@@ -35,7 +35,7 @@ namespace ConsoleEngine
 
         internal protected virtual void Validate(UIComponent parent)
         {
-            if (IsOutsideOfCamera(parent))
+            if (IsOutsideOfCamera())
                 throw new UIException("The UIComponent being added was partially or fully outside of the camera");
 
             if (parent != null)
@@ -76,10 +76,21 @@ namespace ConsoleEngine
                 buffer[x, origin.Y] = c;
                 buffer[x, origin.Y + Size.Y] = c;
             }
-            for (var y = origin.Y y < origin.Y + Size.Y; y++)
+            for (var y = origin.Y; y < origin.Y + Size.Y; y++)
             {
                 buffer[origin.X, y] = c;
                 buffer[origin.X + Size.X, y] = c;
+            }
+        }
+
+        internal protected void DrawFilledRectangle(char[,] buffer, Vec2i origin, Vec2i size, char c)
+        {
+            for (var x = origin.X; x < origin.X + size.X; x++)
+            {
+                for (var y = origin.Y; y < origin.Y + size.Y; y++)
+                {
+                    buffer[x, y] = c;
+                }
             }
         }
     }

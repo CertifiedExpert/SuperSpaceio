@@ -40,15 +40,17 @@ namespace ConsoleEngine
     
         }
 
-        public override void DrawComponentToBitmap(Bitmap bitmap)
+        public override void DrawComponentToBuffer(char[,] buffer, Vec2i offset)
         {
+            var realPos = Position + offset;
+
             if (Outline != null)
             {
-                DrawRectangleOutline(buffer, realPos, Outline);
+                DrawRectangleOutline(buffer, realPos, Outline.Value);
             }
 
             var size = new Vec2i((int)(BarSize.X * Progress), (int)(BarSize.Y * Progress)); //TODO: round this not cast
-            bitmap.DrawFilledRectangle(Position + BarPosition, size, BarBackground);
+            DrawFilledRectangle(buffer, realPos + BarPosition, size, BarBackground);
         }
     }
 }
