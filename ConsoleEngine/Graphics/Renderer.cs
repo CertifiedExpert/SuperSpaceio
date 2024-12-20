@@ -81,9 +81,9 @@ namespace ConsoleEngine
         private void DrawUI()
         {
             // Order parentUIPanels by descending priority.
-            var orderedPanels = Engine.UIManager.ParentUIPanels.OrderByAscending(p => p.Priority);
+            var orderedPanels = Engine.UIManager.ParentUIPanels.OrderBy(p => p.Priority);
 
-            foreach (var panel in orderedPanels) WriteParentPanelToScreenBuffer(panel);
+            foreach (var panel in orderedPanels) panel.DrawComponentToBuffer(screenBuffer, new Vec2i(0, 0));
         }
 
         // Draws the contents of the screenBuffer to the console with pixelSpacingCharacters in between them to account for the unequal ration of height and width of unicode characters.
@@ -158,21 +158,6 @@ namespace ConsoleEngine
                         sprite.Shader.ShaderMethod(x, y, bitmap, sprite.Shader.Args);
                 }
             }
-        }
-
-        // Renders the Sprite of the provided parent UIPanel to the screenBuffer. 
-        private void WriteParentPanelToScreenBuffer(UIPanel uiPanel)
-        {
-            /*
-            for (var x = uiPanel.Position.X; x < uiPanel.Position.X + uiPanel.Size.X; x++)
-            {
-                for (var y = uiPanel.Position.Y; y < uiPanel.Position.Y + uiPanel.Size.Y; y++)
-                {
-                    screenBuffer[x, y] = uiPanel.Background;
-                }
-            }
-            */
-            uiPanel.DrawComponentToBuffer(screenBuffer, new Vec2i(0, 0));
         }
     }
 }

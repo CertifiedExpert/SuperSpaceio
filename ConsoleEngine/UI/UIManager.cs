@@ -27,7 +27,7 @@ namespace ConsoleEngine
 
         public void AddParentUIPanel(UIPanel uiPanel)
         {
-            uiPanel.Validate();
+            uiPanel.Validate(null);
             _parentUIPanels.Add(uiPanel);
         }
         public void RemoveParentUIPanel(UIPanel uiPanel)

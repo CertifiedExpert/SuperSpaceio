@@ -25,7 +25,7 @@ namespace ConsoleEngine
         }
         public abstract void Update();
 
-        public abstract void DrawComponentToBuffer(char[,] buffer, Vec2i offset)
+        public abstract void DrawComponentToBuffer(char[,] buffer, Vec2i offset);
 
         protected void FillWithBackground(char[,] buffer, Vec2i offset)
         {

@@ -16,7 +16,7 @@ namespace ConsoleEngine
             get => _imagePosition;
             set
             {
-                if (value.X < 0 || value.Y < 0) _imagePosition = new Vec2i(0, 0)
+                if (value.X < 0 || value.Y < 0) _imagePosition = new Vec2i(0, 0);
                 else _imagePosition = value;
             }
         }
